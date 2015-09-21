@@ -1,0 +1,57 @@
+#import urllib2
+import json
+import requests
+from datetime import datetime
+try:
+    import urllib.request as urllib2
+except ImportError:
+    import urllib2
+def getDays(urlLink):
+    
+    r=urllib2.urlopen(urlLink)
+    string = r.read().decode('utf-8')
+    js = json.loads(string)
+
+    #here js comprise of JSON response of the above request
+
+
+
+    oIssues=0   # number of open issues
+    gSeven=0    # number of issues more than 7 days old
+    inWeek=0    # number of issues a week old
+    inDay=0     # recently opened in a day
+    table={}	# dict variable to contain required issues info
+
+	
+    # obtains number of open issues
+    for i in range(len(js)):
+        if js[i]['state'] == 'open':
+            oIssues+=1
+    table["open_Issues"]=oIssues
+
+    for i in range(len(js)):
+	# this contains timstamp of creation of issue
+        sCreation = datetime.strptime(js[i]["created_at"], '%Y-%m-%dT%H:%M:%SZ')
+        now=datetime.now()
+        d1= now-sCreation
+        days=d1.days
+	# Number of open issues that were opened more than 7 days ago 
+        if days>7:
+            gSeven+=1
+	# Number of open issues that were opened more than 24 hours ago but less than 7 days ago
+        elif days<7 and days>=1:
+            inWeek+=1
+	# Number of open issues that were opened in the last 24 hours
+        else:
+            inDay+=1
+        
+    table["More_than_7_days"]=gSeven
+    table["Within_1_week"]=inWeek
+    table["Within_24_hours"]=inDay
+    return table
+
+        
+    
+        
+
+
